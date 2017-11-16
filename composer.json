@@ -8,7 +8,6 @@
             "email": "buiphongbg@gmail.com"
         }
     ],
-    "minimum-stability": "stable",
     "autoload": {
         "psr-4": {
             "PhongBui\\Payment\\": "src/"
