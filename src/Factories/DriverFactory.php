@@ -30,12 +30,15 @@ class DriverFactory
     }
 
     /**
-     * Nexmo service
      * @param array $config
+     * @return Napas
      */
     protected function napas(array $config)
     {
-        return new Napas($config['merchant_id'], $config['access_code'], $config['username'], $config['password'], $config['secure_hash']);
+        return new Napas($config['merchant_id'], $config['access_code'],
+            isset($config['username']) ? $config['username'] : '',
+            isset($config['password']) ? $config['password'] : '',
+            $config['secure_hash']);
     }
 
     /**
