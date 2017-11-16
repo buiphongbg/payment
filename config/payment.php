@@ -1,7 +1,6 @@
 <?php
 return [
     'driver' => env('PAYMENT_DRIVER', 'napas'),
-
     'napas' => [
         'merchant_id' => env('NAPAS_MERCHANT_ID'),
         'secure_hash' => env('NAPAS_SECURE_HASH'),

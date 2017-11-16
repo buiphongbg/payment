@@ -23,7 +23,7 @@ class Payment implements PaymentInterface
      */
     public function __construct(PaymentInterface $driver = null)
     {
-        $this->config = (class_exists('Config') ? Config::get('sms') : []);
+        $this->config = (class_exists('Config') ? Config::get('payment') : []);
         $this->driver = $this->getDriver($driver);
     }
 
