@@ -8,7 +8,9 @@
 namespace PhongBui\Payment;
 
 
-class PaymentServiceProvider
+use Illuminate\Support\ServiceProvider;
+
+class PaymentServiceProvider extends ServiceProvider
 {
     public function register()
     {
