@@ -41,8 +41,16 @@ class Payment implements PaymentInterface
         return $driver;
     }
 
-    public function getPaymentUrl()
+    /**
+     * @param $orderId
+     * @param $amount
+     * @param $successUrl
+     * @param $failedUrl
+     * @param $cancelUrl
+     * @return mixed
+     */
+    public function getPaymentUrl($orderId, $amount, $successUrl, $failedUrl, $cancelUrl)
     {
-        // TODO: Implement getPaymentUrl() method.
+        return $this->driver->getPaymentUrl($orderId, $amount, $successUrl, $failedUrl, $cancelUrl);
     }
 }

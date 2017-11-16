@@ -9,5 +9,5 @@ namespace PhongBui\Payment\Interfaces;
 
 interface PaymentInterface
 {
-    public function getPaymentUrl();
+    public function getPaymentUrl($orderId, $amount, $successUrl, $failedUrl, $cancelUrl);
 }

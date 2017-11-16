@@ -9,6 +9,12 @@ namespace PhongBui\Payment\Facades;
 
 use Illuminate\Support\Facades\Facade;
 
+/**
+ * Class Payment Facade
+ *
+ * @method static getPaymentUrl($orderId, $amount, $successUrl, $failedUrl, $cancelUrl)
+ * @package PhongBui\Payment\Facades
+ */
 class Payment extends Facade
 {
     protected static function getFacadeAccessor()
