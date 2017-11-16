@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Facade;
  * Class Payment Facade
  *
  * @method static getPaymentUrl($orderId, $amount, $successUrl, $failedUrl, $cancelUrl)
+ * @method static verifyResponse($params)
  * @package PhongBui\Payment\Facades
  */
 class Payment extends Facade
