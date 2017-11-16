@@ -108,7 +108,7 @@ class Napas implements PaymentInterface
      * Function check response url
      *
      * @param array $url_params
-     * @return bool
+     * @return array|bool
      */
     public function verifyResponseUrl($url_params = [])
     {
@@ -125,9 +125,9 @@ class Napas implements PaymentInterface
         $secureHash = strtoupper(md5($this->secureHash . implode('', $url_params)));
 
         if ($secureHash == $checksum) {
-            return TRUE;
+            return ['success' => true, 'order_id' => $url_params['vpc_OrderInfo']];
         } else {
-            return FALSE;
+            return ['success' => false, 'order_id' => ''];
         }
     }
 
