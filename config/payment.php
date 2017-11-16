@@ -4,11 +4,13 @@ return [
     'napas' => [
         'merchant_id' => env('NAPAS_MERCHANT_ID'),
         'secure_hash' => env('NAPAS_SECURE_HASH'),
-        'access_code' => env('NAPAS_ACCESS_CODE')
+        'access_code' => env('NAPAS_ACCESS_CODE'),
+        'env'         => env('NAPAS_ENV', 'production')
     ],
 
     'payoo' => [
         'key' => env('PAYOO_KEY'),
         'secret' => env('PAYOO_SECRET'),
+        'env'    => env('PAYOO_ENV', 'production')
     ]
 ];
