@@ -51,7 +51,7 @@ class Napas implements PaymentInterface
      */
     public function createRequestPayUrl($orderId, $amount, $successUrl, $cancelUrl, $gateWay = 'ATM', $cardType = '')
     {
-        $server = config('napas.env') == 'sandbox' ? self::$SANDBOX_URL : self::$URL;
+        $server = config('payment.napas.env') == 'sandbox' ? self::$SANDBOX_URL : self::$URL;
 
         //$total_amount = str_replace('.', '', $amount);
         //in Napas price is interger - vnd
