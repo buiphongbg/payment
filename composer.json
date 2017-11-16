@@ -1,0 +1,20 @@
+{
+    "name": "phongbui/payment",
+    "description": "A payment package for laravel 5x",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "phongbui",
+            "email": "buiphongbg@gmail.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "autoload": {
+        "psr-4": {
+            "PhongBui\\Payment\\": "src/"
+        }
+    },
+    "require": {
+        "php": "^5.6|^7.0"
+    }
+}
