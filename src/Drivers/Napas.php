@@ -125,9 +125,18 @@ class Napas implements PaymentInterface
         $secureHash = strtoupper(md5($this->secureHash . implode('', $url_params)));
 
         if ($secureHash == $checksum) {
-            return ['success' => true, 'order_id' => $url_params['vpc_OrderInfo'], 'transaction_id' => $url_params['vpc_TransactionNo'], 'payment_amount' => (int)$url_params['vpc_Amount'] / 100];
+            // Check response code
+            switch ($url_params['vpc_ResponseCode']) {
+                case 0:
+                    return ['success' => true, 'order_id' => $url_params['vpc_OrderInfo'], 'transaction_id' => $url_params['vpc_TransactionNo'], 'payment_amount' => (int)$url_params['vpc_Amount'] / 100];
+                    break;
+                default:
+                    $message = $this->getErrorMessage($url_params['vpc_ResponseCode']);
+                    return ['success' => false, 'order_id' => '', 'transaction_id' => '', 'payment_amount' => 0, 'message' => $message];
+                    break;
+            }
         } else {
-            return ['success' => false, 'order_id' => '', 'transaction_id' => '', 'payment_amount' => 0];
+            return ['success' => false, 'order_id' => '', 'transaction_id' => '', 'payment_amount' => 0, 'message' => 'Checksum failed.'];
         }
     }
 
