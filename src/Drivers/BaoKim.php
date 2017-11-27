@@ -123,7 +123,7 @@ class BaoKim implements PaymentInterface
         ksort($url_params);
 
         if(strcasecmp($checksum,hash_hmac('SHA1',implode('',$url_params), $this->secure_pass))===0)
-            return ['success' => true, 'order_id' => $url_params['vpc_OrderInfo'], 'transaction_id' => $url_params['vpc_TransactionNo'], 'payment_amount' => (int)$url_params['vpc_Amount'] / 100];
+            return ['success' => true, 'order_id' => $url_params['order_id'], 'transaction_id' => $url_params['transaction_id'], 'payment_amount' => (int)$url_params['total_amount'], 'net_amount' => $url_params['net_amount']];
         else
             return ['success' => false, 'order_id' => '', 'transaction_id' => '', 'payment_amount' => 0, 'message' => 'Checksum failed.'];
     }
