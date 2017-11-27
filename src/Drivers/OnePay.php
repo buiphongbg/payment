@@ -63,41 +63,51 @@ class OnePay implements PaymentInterface
             'vpc_AccessCode' => $this->accessCode,
             'vpc_Merchant' => $this->merchantId,
             'vpc_Locale' => $locale,
-            'vpc_MerchTxnRef' => $orderId . '/1',
+            'vpc_ReturnURL' => $successUrl,
+            'vpc_MerchTxnRef' => $orderId,
             'vpc_OrderInfo' => $orderId,
             'vpc_Amount' => $total_amount,
-            'vpc_ReturnURL' => $successUrl,
             'vpc_BackURL' => $cancelUrl,
-            'vpc_TicketNo' => $_SERVER['REMOTE_ADDR']
+            'vpc_TicketNo' => $_SERVER['REMOTE_ADDR'],
+            'Title' => 'Thanh toan'
         );
 
-        if (!empty($gateWay)) {
-            $params['vpc_PaymentGateway'] = $gateWay;
-        }
-
-        if (!empty($cardType)) {
-            $params['vpc_CardType'] = $cardType;
-        }
-
         ksort($params);
-        $params['vpc_SecureHash'] = strtoupper(hash_hmac('SHA256', implode('', $params), $this->secure_secret));
 
-        // Create url params
-        $url_params = http_build_query($params);
+        $vpcURL = $server . self::$PAYMENT_GATEWAY . '?';
+        $stringHashData = '';
+        $appendAmp = 0;
 
-        // Check redirect url
-        $redirect_url = $server . self::$PAYMENT_GATEWAY;
-        if (strpos($redirect_url, '?') === false)
-        {
-            $redirect_url .= '?';
+        foreach($params as $key => $value) {
+
+            // create the md5 input and URL leaving out any fields that have no value
+            // tạo chuỗi đầu dữ liệu những tham số có dữ liệu
+            if (strlen($value) > 0) {
+                // this ensures the first paramter of the URL is preceded by the '?' char
+                if ($appendAmp == 0) {
+                    $vpcURL .= urlencode($key) . '=' . urlencode($value);
+                    $appendAmp = 1;
+                } else {
+                    $vpcURL .= '&' . urlencode($key) . "=" . urlencode($value);
+                }
+                //$stringHashData .= $value; *****************************sử dụng cả tên và giá trị tham số để mã hóa*****************************
+                if ((strlen($value) > 0) && ((substr($key, 0,4)=="vpc_") || (substr($key,0,5) =="user_"))) {
+                    $stringHashData .= $key . "=" . $value . "&";
+                }
+            }
         }
-        else if (substr($redirect_url, strlen($redirect_url)-1, 1) != '?' && strpos($redirect_url, '&') === false)
-        {
-            // Nếu biến $redirect_url có '?' nhưng không kết thúc bằng '?' và có chứa dấu '&' thì bổ sung vào cuối
-            $redirect_url .= '&';
+        //*****************************xóa ký tự & ở thừa ở cuối chuỗi dữ liệu mã hóa*****************************
+        $stringHashData = rtrim($stringHashData, "&");
+        // Create the secure hash and append it to the Virtual Payment Client Data if
+        // the merchant secret has been provided.
+        // thêm giá trị chuỗi mã hóa dữ liệu được tạo ra ở trên vào cuối url
+        if (strlen($this->secure_secret) > 0) {
+            //$vpcURL .= "&vpc_SecureHash=" . strtoupper(md5($stringHashData));
+            // *****************************Thay hàm mã hóa dữ liệu*****************************
+            $vpcURL .= "&vpc_SecureHash=" . strtoupper(hash_hmac('SHA256', $stringHashData, pack('H*',$this->secure_secret)));
         }
 
-        return $redirect_url.$url_params;
+        return $vpcURL;
     }
 
     /**
