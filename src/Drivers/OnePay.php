@@ -128,16 +128,26 @@ class OnePay implements PaymentInterface
 
         ksort($url_params);
 
-        $secureHash = strtoupper(md5($this->secureHash . implode('', $url_params)));
+        $stringHashData = "";
+
+        // sort all the incoming vpc response fields and leave out any with no value
+        foreach ($url_params as $key => $value ) {
+            if ($key != "vpc_SecureHash" && (strlen($value) > 0) && ((substr($key, 0,4)=="vpc_") || (substr($key,0,5) =="user_"))) {
+                $stringHashData .= $key . "=" . $value . "&";
+            }
+        }
+        $stringHashData = rtrim($stringHashData, "&");
+
+        $secureHash = strtoupper(hash_hmac('SHA256', $stringHashData, pack('H*',$this->secure_secret)));
 
         if ($secureHash == $checksum) {
             // Check response code
-            switch ($url_params['vpc_ResponseCode']) {
+            switch ($url_params['vpc_TxnResponseCode']) {
                 case 0:
                     return ['success' => true, 'order_id' => $url_params['vpc_OrderInfo'], 'transaction_id' => $url_params['vpc_TransactionNo'], 'payment_amount' => (int)$url_params['vpc_Amount'] / 100];
                     break;
                 default:
-                    $message = $this->getErrorMessage($url_params['vpc_ResponseCode']);
+                    $message = $this->getErrorMessage($url_params['vpc_TxnResponseCode']);
                     return ['success' => false, 'order_id' => '', 'transaction_id' => '', 'payment_amount' => 0, 'message' => $message];
                     break;
             }
