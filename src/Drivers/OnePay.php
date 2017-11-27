@@ -80,7 +80,7 @@ class OnePay implements PaymentInterface
         }
 
         ksort($params);
-        $params['vpc_SecureHash'] = strtoupper(md5($this->secureHash . implode('', $params)));
+        $params['vpc_SecureHash'] = strtoupper(hash_hmac('SHA256', implode('', $params), $this->secure_secret));
 
         // Create url params
         $url_params = http_build_query($params);
