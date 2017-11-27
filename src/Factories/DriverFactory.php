@@ -10,6 +10,7 @@ namespace PhongBui\Payment\Factories;
 
 use PhongBui\Payment\Drivers\BaoKim;
 use PhongBui\Payment\Drivers\Napas;
+use PhongBui\Payment\Drivers\OnePay;
 
 class DriverFactory
 {
@@ -40,6 +41,15 @@ class DriverFactory
             isset($config['username']) ? $config['username'] : '',
             isset($config['password']) ? $config['password'] : '',
             $config['secure_hash']);
+    }
+
+    /**
+     * @param array $config
+     * @return OnePay
+     */
+    protected function onepay(array $config)
+    {
+        return new OnePay($config['merchant_id'], $config['access_code'], $config['secure_secret']);
     }
 
     /**

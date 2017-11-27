@@ -8,6 +8,13 @@ return [
         'env'         => env('NAPAS_ENV', 'production')
     ],
 
+    'onepay' => [
+        'merchant_id' => env('ONEPAY_MERCHANT_ID', 'ONEPAY'),
+        'secure_secret' => env('ONEPAY_SECURE_SECRET', 'A3EFDFABA8653DF2342E8DAC29B51AF0'),
+        'access_code' => env('ONEPAY_ACCESS_CODE', 'D67342C2'),
+        'env'         => env('ONEPAY_ENV', 'sandbox')
+    ],
+
     'payoo' => [
         'key' => env('PAYOO_KEY'),
         'secret' => env('PAYOO_SECRET'),
