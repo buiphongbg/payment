@@ -12,5 +12,14 @@ return [
         'key' => env('PAYOO_KEY'),
         'secret' => env('PAYOO_SECRET'),
         'env'    => env('PAYOO_ENV', 'production')
-    ]
+    ],
+
+    'baokim' => [
+        'merchant_id'    => env('BAOKIM_MERCHANT_ID'),
+        'email_business' => env('BAOKIM_EMAIL_BUSINESS'),
+        'secure_pass'    => env('BAOKIM_SECURE_PASS'),
+        'api_user'       => env('BAOKIM_API_USER'),
+        'api_pwd'        => env('BAOKIM_API_PWD'),
+        'private_key'    => env('BAOKIM_PRIVATE_KEY'),
+    ],
 ];

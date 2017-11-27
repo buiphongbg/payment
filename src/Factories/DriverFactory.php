@@ -8,6 +8,7 @@
 namespace PhongBui\Payment\Factories;
 
 
+use PhongBui\Payment\Drivers\BaoKim;
 use PhongBui\Payment\Drivers\Napas;
 
 class DriverFactory
@@ -48,5 +49,13 @@ class DriverFactory
     protected function payoo(array $config)
     {
 
+    }
+
+    /**
+     * @param array $config
+     */
+    protected function baokim(array $config)
+    {
+        return new BaoKim($config['merchant_id'], $config['email_business'], $config['secure_pass'], $config['api_user'], $config['api_pwd'], $config['private_key']);
     }
 }
