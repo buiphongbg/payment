@@ -53,6 +53,15 @@ class DriverFactory
     }
 
     /**
+     * @param array $config
+     * @return OnePay
+     */
+    protected function vnpay(array $config)
+    {
+        return new VNPay($config['vnp_tmn_code'], $config['vnp_hash_secret']);
+    }
+
+    /**
      * ESms service
      * @param array $config
      */

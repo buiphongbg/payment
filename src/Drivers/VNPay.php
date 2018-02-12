@@ -15,7 +15,7 @@ class VNPay implements PaymentInterface
     protected static $QUERY_DR        = '/paymentv2/vpcpay.html';
     protected static $REFUND_URL      = '/gateway/vpcdps';
     protected static $PAYMENT_GATEWAY = '/onecomm-pay/vpc.op';
-    protected static $URL             = 'https://onepay.vn';
+    protected static $URL             = 'https://vnpayment.vn';
     protected static $SANDBOX_URL     = 'http://sandbox.vnpayment.vn';
 
     const VERSION = '2.0.0';
@@ -47,9 +47,8 @@ class VNPay implements PaymentInterface
     {
         $vnp_Url = config('payment.vnpay.env') == 'sandbox' ? self::$SANDBOX_URL : self::$URL;
 
-        //$total_amount = str_replace('.', '', $amount);
-        //in Napas price is interger - vnd
-        $total_amount = (int) $amount * 100;
+        $vnp_Url .= self::$QUERY_DR;
+
         $base_url = "http://" . $_SERVER['SERVER_NAME'];
         $currency = 'VND'; // USD
         $locale = 'vn';
@@ -97,36 +96,37 @@ class VNPay implements PaymentInterface
      */
     public function verifyResponseUrl($url_params = [])
     {
-        if(empty($url_params['vpc_SecureHash'])){
-            echo "invalid parameters: vpc_SecureHash is missing";
-            return FALSE;
-        }
-
-        $checksum = $url_params['vpc_SecureHash'];
-        unset($url_params['vpc_SecureHash']);
-
-        ksort($url_params);
-
-        $stringHashData = "";
-
-        // sort all the incoming vpc response fields and leave out any with no value
-        foreach ($url_params as $key => $value ) {
-            if ($key != "vpc_SecureHash" && (strlen($value) > 0) && ((substr($key, 0,4)=="vpc_") || (substr($key,0,5) =="user_"))) {
-                $stringHashData .= $key . "=" . $value . "&";
+        $vnp_SecureHash = $url_params['vnp_SecureHash'];
+        $inputData = array();
+        foreach ($url_params as $key => $value) {
+            if (substr($key, 0, 4) == "vnp_") {
+                $inputData[$key] = $value;
             }
         }
-        $stringHashData = rtrim($stringHashData, "&");
+        unset($inputData['vnp_SecureHashType']);
+        unset($inputData['vnp_SecureHash']);
+        ksort($inputData);
+        $i = 0;
+        $hashData = "";
+        foreach ($inputData as $key => $value) {
+            if ($i == 1) {
+                $hashData = $hashData . '&' . $key . "=" . $value;
+            } else {
+                $hashData = $hashData . $key . "=" . $value;
+                $i = 1;
+            }
+        }
 
-        $secureHash = strtoupper(hash_hmac('SHA256', $stringHashData, pack('H*',$this->secure_secret)));
+        $secureHash = md5($this->vnp_HashSecret . $hashData);
 
-        if ($secureHash == $checksum) {
+        if ($secureHash == $vnp_SecureHash) {
             // Check response code
-            switch ($url_params['vpc_TxnResponseCode']) {
-                case 0:
-                    return ['success' => true, 'order_id' => $url_params['vpc_OrderInfo'], 'transaction_id' => $url_params['vpc_TransactionNo'], 'payment_amount' => (int)$url_params['vpc_Amount'] / 100];
+            switch ($url_params['vnp_ResponseCode']) {
+                case '00':
+                    return ['success' => true, 'order_id' => $url_params['vnp_OrderInfo'], 'transaction_id' => $url_params['vnp_TransactionNo'], 'payment_amount' => (int)$url_params['vnp_Amount'] / 100];
                     break;
                 default:
-                    $message = $this->getErrorMessage($url_params['vpc_TxnResponseCode']);
+                    $message = $this->getErrorMessage($url_params['vnp_ResponseCode']);
                     return ['success' => false, 'order_id' => '', 'transaction_id' => '', 'payment_amount' => 0, 'message' => $message];
                     break;
             }
@@ -138,50 +138,47 @@ class VNPay implements PaymentInterface
     public function getErrorMessage($errorCode)
     {
         switch ($errorCode) {
-            case "0" :
+            case "00" :
                 $result = "Giao dịch thành công - Approved";
                 break;
-            case "1" :
-                $result = "Ngân hàng từ chối giao dịch - Bank Declined";
+            case "01" :
+                $result = "	Giao dịch đã tồn tại";
                 break;
-            case "3" :
-                $result = "Mã đơn vị không tồn tại - Merchant not exist";
+            case "02" :
+                $result = "Merchant không hợp lệ (kiểm tra lại vnp_TmnCode)";
                 break;
-            case "4" :
-                $result = "Không đúng access code - Invalid access code";
+            case "04" :
+                $result = "Khởi tạo GD không thành công do Website đang bị tạm khóa";
                 break;
-            case "5" :
-                $result = "Số tiền không hợp lệ - Invalid amount";
+            case "05" :
+                $result = "Giao dịch không thành công do: Quý khách nhập sai mật khẩu quá số lần quy định. Xin quý khách vui lòng thực hiện lại giao dịch";
                 break;
-            case "6" :
-                $result = "Mã tiền tệ không tồn tại - Invalid currency code";
+            case "06" :
+                $result = "Giao dịch không thành công do Quý khách nhập sai mật khẩu xác thực giao dịch (OTP). Xin quý khách vui lòng thực hiện lại giao dịch.";
                 break;
-            case "7" :
-                $result = "Lỗi không xác định - Unspecified Failure ";
+            case "07" :
+                $result = "	Giao dịch bị nghi ngờ là giao dịch gian lận";
                 break;
-            case "8" :
-                $result = "Số thẻ không đúng - Invalid card Number";
+            case '08':
+                $result = 'Giao dịch không thành công do: Hệ thống Ngân hàng đang bảo trì. Xin quý khách tạm thời không thực hiện giao dịch bằng thẻ/tài khoản của Ngân hàng này.';
                 break;
-            case "9" :
-                $result = "Tên chủ thẻ không đúng - Invalid card name";
+            case "09" :
+                $result = "Giao dịch không thành công do: Thẻ/Tài khoản của khách hàng chưa đăng ký dịch vụ InternetBanking tại ngân hàng.";
                 break;
             case "10" :
-                $result = "Thẻ hết hạn/Thẻ bị khóa - Expired Card";
+                $result = "Giao dịch không thành công do: Khách hàng xác thực thông tin thẻ/tài khoản không đúng quá 3 lần";
                 break;
             case "11" :
-                $result = "Thẻ chưa đăng ký sử dụng dịch vụ - Card Not Registed Service(internet banking)";
+                $result = "Giao dịch không thành công do: Đã hết hạn chờ thanh toán. Xin quý khách vui lòng thực hiện lại giao dịch.";
                 break;
             case "12" :
-                $result = "Ngày phát hành/Hết hạn không đúng - Invalid card date";
+                $result = "Giao dịch không thành công do: Thẻ/Tài khoản của khách hàng bị khóa.";
                 break;
-            case "13" :
-                $result = "Vượt quá hạn mức thanh toán - Exist Amount";
+            case "51" :
+                $result = "Giao dịch không thành công do: Tài khoản của quý khách không đủ số dư để thực hiện giao dịch.";
                 break;
-            case "21" :
-                $result = "Số tiền không đủ để thanh toán - Insufficient fund";
-                break;
-            case "99" :
-                $result = "Người sủ dụng hủy giao dịch - User cancel";
+            case "65" :
+                $result = "Giao dịch không thành công do: Tài khoản của Quý khách đã vượt quá hạn mức giao dịch trong ngày.";
                 break;
             default :
                 $result = "Giao dịch thất bại - Failured";
