@@ -15,6 +15,12 @@ return [
         'env'         => env('ONEPAY_ENV', 'sandbox')
     ],
 
+    'vnpay' => [
+        'vnp_tmn_code' => env('VNPAY_TMN_CODE', ''),
+        'vnp_hash_secret' => env('VNPAY_HASH_SECRET', ''),
+        'env'         => env('VNPAY_ENV', 'sandbox')
+    ],
+
     'payoo' => [
         'key' => env('PAYOO_KEY'),
         'secret' => env('PAYOO_SECRET'),
