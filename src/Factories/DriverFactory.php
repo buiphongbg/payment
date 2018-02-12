@@ -11,6 +11,7 @@ namespace PhongBui\Payment\Factories;
 use PhongBui\Payment\Drivers\BaoKim;
 use PhongBui\Payment\Drivers\Napas;
 use PhongBui\Payment\Drivers\OnePay;
+use PhongBui\Payment\Drivers\VNPay;
 
 class DriverFactory
 {
