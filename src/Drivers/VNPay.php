@@ -49,6 +49,7 @@ class VNPay implements PaymentInterface
 
         $vnp_Url .= self::$QUERY_DR;
 
+        $total_amount = (int) $amount * 100;
         $base_url = "http://" . $_SERVER['SERVER_NAME'];
         $currency = 'VND'; // USD
         $locale = 'vn';
@@ -56,7 +57,7 @@ class VNPay implements PaymentInterface
         $inputData = array(
             "vnp_Version" => self::VERSION,
             "vnp_TmnCode" => $this->vnp_TmnCode,
-            "vnp_Amount" => $amount,
+            "vnp_Amount" => $total_amount,
             "vnp_Command" => "pay",
             "vnp_CreateDate" => date('YmdHis'),
             "vnp_CurrCode" => $currency,
